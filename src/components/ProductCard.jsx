@@ -11,7 +11,7 @@ const ProductCard = ({ product }) => {
     dispatch(addCart(product));
   };
 
-  const { id, image, title, description, price } = product;
+  const { id, image, title, description, price, isOutOfStock } = product;
 
   return (
     <div id={id} key={id} className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
@@ -30,19 +30,27 @@ const ProductCard = ({ product }) => {
           <li className="list-group-item lead">$ {price}</li>
         </ul>
         <div className="card-body">
-          <Link to={"/product/" + id} className="btn btn-dark m-1">
-            Buy Now
-          </Link>
-          <button
-            className="btn btn-dark m-1"
-            onClick={() => {
-              toast.success("Added to cart");
-              addProduct(product);
-            }}
-          >
-            Add to Cart
-          </button>
+          {!isOutOfStock ? (
+            <>
+              <Link to={"/product/" + id} className="btn btn-dark m-1">
+                Buy Now
+              </Link>
+              <button
+                className="btn btn-dark m-1"
+                onClick={() => {
+                  toast.success("Added to cart");
+                  addProduct(product);
+                }}
+              >
+                Add to Cart
+              </button>
+            </>
+          ) : <span className="text-danger">Out of stock</span>}
         </div>
+              {isOutOfStock ? <div
+        className="mask position-absolute top-0 start-0 w-100 h-100"
+        style={{ backgroundColor: 'hsla(0, 0%, 0%, 0.4)' }}
+      /> : null}
       </div>
     </div>
   );
