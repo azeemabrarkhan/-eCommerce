@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useFetchData } from "../hooks/useFetchData";
 import { ProductCard } from "./";
 
+const PRODUCTS_API_ENDPOINT = "https://fakestoreapi.com/products/";
 const NUMBER_OF_PRODUCT_SKELETONS = 6;
 const FILTER_BUTTONS_LABELS = [
   "All",
@@ -13,29 +15,17 @@ const FILTER_BUTTONS_LABELS = [
 ];
 
 const Products = () => {
-  const [data, setData] = useState([]);
+  const { data, isLoading, hasError } = useFetchData(PRODUCTS_API_ENDPOINT);
   const [filter, setFilter] = useState(data);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
+    setFilter(data);
+  }, [data]);
 
-    const getProducts = async () => {
-      setLoading(true);
-      const response = await fetch("https://fakestoreapi.com/products/");
-      if (isMounted) {
-        setData(await response.clone().json());
-        setFilter(await response.json());
-        setLoading(false);
-      }
-    };
-
-    getProducts();
-
-    return () => {
-      isMounted = false; // cleanup function on unmount
-    };
-  }, []);
+  const filterProduct = (cat) => {
+    const updatedList = data.filter((item) => item.category === cat);
+    setFilter(updatedList);
+  };
 
   const renderSkeleton = () => {
     return (
@@ -50,11 +40,6 @@ const Products = () => {
         ))}
       </>
     );
-  };
-
-  const filterProduct = (cat) => {
-    const updatedList = data.filter((item) => item.category === cat);
-    setFilter(updatedList);
   };
 
   const renderProducts = () => {
@@ -92,7 +77,11 @@ const Products = () => {
           </div>
         </div>
         <div className="row justify-content-center">
-          {loading ? renderSkeleton() : renderProducts()}
+          {!hasError
+            ? isLoading
+              ? renderSkeleton()
+              : renderProducts()
+            : "Error occured while fetching products"}
         </div>
       </div>
     </>
